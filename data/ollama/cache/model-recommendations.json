@@ -1,0 +1,42 @@
+{
+  "recommendations": [
+    {
+      "model": "glm-5.2:cloud",
+      "description": "Long-horizon coding and agentic engineering with a solid 1M context",
+      "context_length": 1000000,
+      "max_output_tokens": 131072,
+      "required_plan": "pro"
+    },
+    {
+      "model": "kimi-k2.7-code:cloud",
+      "description": "Coding-focused long-horizon agentic workflows with improved token efficiency and vision",
+      "context_length": 262144,
+      "max_output_tokens": 262144,
+      "required_plan": "pro"
+    },
+    {
+      "model": "minimax-m3:cloud",
+      "description": "State-of-the-art coding \u0026 agent capabilities with multimodal reasoning and support for up to 1M context",
+      "context_length": 524288,
+      "max_output_tokens": 131072,
+      "required_plan": "free"
+    },
+    {
+      "model": "nemotron-3-super:cloud",
+      "description": "Reasoning, coding, and agentic tool use",
+      "context_length": 262144,
+      "max_output_tokens": 65536,
+      "required_plan": "free"
+    },
+    {
+      "model": "gemma4",
+      "description": "Agentic workflows and multimodal reasoning",
+      "vram_bytes": 12000000000
+    },
+    {
+      "model": "qwen3.6",
+      "description": "Agentic software engineering model with multimodal capabilities",
+      "vram_bytes": 28000000000
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aiplanning_postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=aiplanning
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - aiplanning_network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aiplanning_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./data/ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: unless-stopped
+    networks:
+      - aiplanning_network
+
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    container_name: aiplanning_chromadb
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data/chroma:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - ANONYMIZED_TELEMETRY=False
+    restart: unless-stopped
+    networks:
+      - aiplanning_network
+
+  backend:
+    build: ./backend
+    container_name: aiplanning_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./data/templates:/app/templates
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_HOST=ollama
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - MODEL_NAME=qwen2.5:3b
+      - DEBUG=False
+      - DATABASE_URL=postgresql://admin:admin@postgres:5432/aiplanning
+    depends_on:
+      - chromadb
+      - ollama
+      - postgres
+    restart: unless-stopped
+    networks:
+      - aiplanning_network
+
+  frontend:
+    build: ./frontend
+    container_name: aiplanning_frontend
+    ports:
+      - "5173:5173" # Dev
+      # - "80:80"            # Production (commenter le 5173)
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - aiplanning_network
+
+networks:
+  aiplanning_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
